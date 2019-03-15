@@ -1,4 +1,4 @@
-# Go Generator Plugin
+# gnostic Go Generator Plugin
 
 This project contains a `gnostic` plugin that can be used to generate a Go client library and scaffolding for a Go server for an API with an OpenAPI description.
 
@@ -16,3 +16,6 @@ By default, both client and server code will be generated. If the `gnostic-go-ge
 	gnostic bookstore.json --go-server-out=bookstore
 
 For example usage, see the [examples/v2.0/bookstore](examples/v2.0/bookstore) directory.
+
+# Disclaimer
+This is not an officially supported Google product
