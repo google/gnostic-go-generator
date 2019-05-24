@@ -4,7 +4,7 @@ workflows:
   build_format:
     jobs:
       - format:
-        filters: *all_commits
+          filters: *all_commits
       - build:
           filters: *all_commits
 jobs:
