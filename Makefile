@@ -1,3 +1,4 @@
+SHELL = /bin/bash
 
 build:	
 	go install github.com/googleapis/gnostic-go-generator
