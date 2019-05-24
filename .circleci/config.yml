@@ -3,10 +3,8 @@ workflows:
   version: 2
   build_format:
     jobs:
-      - format:
-          filters: *all_commits
-      - build:
-          filters: *all_commits
+      - format
+      - build
 jobs:
   format:
     docker:
