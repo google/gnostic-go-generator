@@ -1,0 +1,8 @@
+# ignore code generated for tests
+examples/*/*/service/service
+examples/**/client.go
+examples/**/constants.go
+examples/**/provider.go
+examples/**/server.go
+examples/**/types.go
+examples/**/model.json
