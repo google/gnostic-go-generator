@@ -1,9 +1,8 @@
+mkfile_dir := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
+
 build:	
 	go install github.com/googleapis/gnostic
-	go install github.com/googleapis/gnostic-go-generator
-	rm -f $(GOPATH)/bin/gnostic-go-client $(GOPATH)/bin/gnostic-go-server
-	ln -s $(GOPATH)/bin/gnostic-go-generator $(GOPATH)/bin/gnostic-go-client
-	ln -s $(GOPATH)/bin/gnostic-go-generator $(GOPATH)/bin/gnostic-go-server
+	make -C $(mkfile_dir)/../../../
 
 all:	build
 	gnostic bookstore.json --go-generator-out=bookstore
@@ -16,4 +15,3 @@ test:	all
 	cd service; go get .; go build; ./service &
 	go test
 	killall service
-

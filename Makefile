@@ -1,7 +1,9 @@
 SHELL = /bin/bash
 
+mkfile_dir := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
+
 build:	
-	go install github.com/googleapis/gnostic-go-generator
+	go install $(mkfile_dir)
 	rm -f $(GOPATH)/bin/gnostic-go-client $(GOPATH)/bin/gnostic-go-server
 	ln -s $(GOPATH)/bin/gnostic-go-generator $(GOPATH)/bin/gnostic-go-client
 	ln -s $(GOPATH)/bin/gnostic-go-generator $(GOPATH)/bin/gnostic-go-server
