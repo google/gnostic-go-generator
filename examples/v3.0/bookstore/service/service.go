@@ -68,8 +68,8 @@ func (service *Service) CreateShelf(parameters *bookstore.CreateShelfParameters,
 	service.LastShelfID++
 	sid := service.LastShelfID
 	shelf.Name = fmt.Sprintf("shelves/%d", sid)
-	service.Shelves[sid] = &shelf
-	(*responses).OK = &shelf
+	service.Shelves[sid] = shelf
+	(*responses).OK = shelf
 	return err
 }
 
@@ -144,8 +144,8 @@ func (service *Service) CreateBook(parameters *bookstore.CreateBookParameters, r
 	if service.Books[parameters.Shelf] == nil {
 		service.Books[parameters.Shelf] = make(map[int64]*bookstore.Book)
 	}
-	service.Books[parameters.Shelf][bid] = &book
-	(*responses).OK = &book
+	service.Books[parameters.Shelf][bid] = book
+	(*responses).OK = book
 	return err
 }
 
