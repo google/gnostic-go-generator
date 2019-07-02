@@ -29,15 +29,17 @@ func (renderer *Renderer) RenderTypes() ([]byte, error) {
 		if modelType.Kind == surface.TypeKind_STRUCT {
 			f.WriteLine(`type ` + modelType.TypeName + ` struct {`)
 			for _, field := range modelType.Fields {
-				prefix := ""
+				typ := field.NativeType
 				if field.Kind == surface.FieldKind_REFERENCE {
-					prefix = "*"
+					typ = "*" + typ
 				} else if field.Kind == surface.FieldKind_ARRAY {
-					prefix = "[]"
+					typ = "[]" + typ
 				} else if field.Kind == surface.FieldKind_MAP {
-					prefix = "map[string]"
+					typ = "map[string]" + typ
+				} else if field.Kind == surface.FieldKind_ANY {
+					typ = "interface{}"
 				}
-				f.WriteLine(field.FieldName + ` ` + prefix + field.NativeType + jsonTag(field))
+				f.WriteLine(field.FieldName + ` ` + typ + jsonTag(field))
 			}
 			f.WriteLine(`}`)
 		} else if modelType.Kind == surface.TypeKind_OBJECT {
