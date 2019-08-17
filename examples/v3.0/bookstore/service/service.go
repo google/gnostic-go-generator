@@ -91,7 +91,7 @@ func (service *Service) GetShelf(parameters *bookstore.GetShelfParameters, respo
 	shelf, err := service.getShelf(parameters.Shelf)
 	if err != nil {
 		defaultResponse := &bookstore.GetShelfDefault{
-			ApplicationJson: &bookstore.Error{Code: int32(http.StatusNotFound), Message: "fck2"},
+			ApplicationJson: &bookstore.Error{Code: int32(http.StatusNotFound), Message: err.Error()},
 		}
 		(*responses).Default = defaultResponse
 		return nil

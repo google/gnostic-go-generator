@@ -16,7 +16,6 @@ package main
 
 import (
 	"fmt"
-
 	surface "github.com/googleapis/gnostic/surface"
 )
 
@@ -130,6 +129,10 @@ func (renderer *Renderer) RenderServer() ([]byte, error) {
 			if responsesType.HasFieldWithName("Default") {
 				f.WriteLine(`if responses.Default != nil {`)
 				f.WriteLine(`  // write the error response`)
+				contentType := responsesType.FieldWithName("Default").ServiceType(renderer.Model).FieldWithName("Application/Json")
+				if contentType != nil && contentType.ServiceType(renderer.Model).FieldWithName("Code") != nil {
+					f.WriteLine(`  w.WriteHeader(int(responses.Default.ApplicationJson.Code))`)
+				}
 				if responsesType.FieldWithName("Default").ServiceType(renderer.Model).FieldWithName("Code") != nil {
 					f.WriteLine(`  w.WriteHeader(int(responses.Default.Code))`)
 				}
