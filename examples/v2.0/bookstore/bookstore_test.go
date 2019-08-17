@@ -47,7 +47,7 @@ func TestBookstore(t *testing.T) {
 			t.Log("list shelves failed")
 			t.Fail()
 		}
-		if (response == nil) || (response.OK == nil) || (response.OK.Shelves != nil) {
+		if (response == nil) || (response.OK == nil) || (len(response.OK.Shelves) != 0) {
 			t.Log(fmt.Sprintf("list shelves failed %+v", response.OK))
 			t.Log(fmt.Sprintf("list shelves failed len=%d", len(response.OK.Shelves)))
 			t.Fail()
