@@ -16,6 +16,7 @@ package main
 
 import (
 	surface "github.com/googleapis/gnostic/surface"
+	"strings"
 )
 
 func (renderer *Renderer) RenderTypes() ([]byte, error) {
@@ -35,11 +36,12 @@ func (renderer *Renderer) RenderTypes() ([]byte, error) {
 				} else if field.Kind == surface.FieldKind_ARRAY {
 					typ = "[]" + typ
 				} else if field.Kind == surface.FieldKind_MAP {
-					typ = "map[string]" + typ
+					typ = field.Type
 				} else if field.Kind == surface.FieldKind_ANY {
 					typ = "interface{}"
 				}
-				f.WriteLine(field.FieldName + ` ` + typ + jsonTag(field))
+				cleanedName := strings.Replace(field.FieldName, "/", "", -1)
+				f.WriteLine(cleanedName + ` ` + typ + jsonTag(field))
 			}
 			f.WriteLine(`}`)
 		} else if modelType.Kind == surface.TypeKind_OBJECT {
