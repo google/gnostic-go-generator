@@ -54,9 +54,9 @@ func (service *Service) ListShelves(responses *bookstore.ListShelvesResponses) (
 	for _, shelf := range service.Shelves {
 		shelves = append(shelves, *shelf)
 	}
-	response := &bookstore.ListShelvesResponse{}
-	response.Shelves = shelves
-	(*responses).OK = response
+	ok := &bookstore.ListShelvesOK{}
+	ok.ApplicationJson = &bookstore.ListShelvesResponse{Shelves: shelves}
+	(*responses).OK = ok
 	return err
 }
 
@@ -64,12 +64,12 @@ func (service *Service) CreateShelf(parameters *bookstore.CreateShelfParameters,
 	service.Mutex.Lock()
 	defer service.Mutex.Unlock()
 	// assign an id and name to a shelf and add it to the Shelves map.
-	shelf := parameters.Shelf
+	shelf := parameters.RequestBody.ApplicationJson
 	service.LastShelfID++
 	sid := service.LastShelfID
 	shelf.Name = fmt.Sprintf("shelves/%d", sid)
 	service.Shelves[sid] = shelf
-	(*responses).OK = shelf
+	(*responses).OK = &bookstore.CreateShelfOK{ApplicationJson: shelf}
 	return err
 }
 
@@ -90,10 +90,13 @@ func (service *Service) GetShelf(parameters *bookstore.GetShelfParameters, respo
 	// look up a shelf from the Shelves map.
 	shelf, err := service.getShelf(parameters.Shelf)
 	if err != nil {
-		(*responses).Default = &bookstore.Error{Code: int32(http.StatusNotFound), Message: err.Error()}
+		defaultResponse := &bookstore.GetShelfDefault{
+			ApplicationJson: &bookstore.Error{Code: int32(http.StatusNotFound), Message: "fck2"},
+		}
+		(*responses).Default = defaultResponse
 		return nil
 	} else {
-		(*responses).OK = shelf
+		(*responses).OK = &bookstore.GetShelfOK{ApplicationJson: shelf}
 		return nil
 	}
 }
@@ -113,7 +116,10 @@ func (service *Service) ListBooks(parameters *bookstore.ListBooksParameters, res
 	// list the books in a shelf
 	_, err = service.getShelf(parameters.Shelf)
 	if err != nil {
-		(*responses).Default = &bookstore.Error{Code: int32(http.StatusNotFound), Message: err.Error()}
+		defaultResponse := &bookstore.ListBooksDefault{
+			ApplicationJson: &bookstore.Error{Code: int32(http.StatusNotFound), Message: err.Error()},
+		}
+		(*responses).Default = defaultResponse
 		return nil
 	}
 	shelfBooks := service.Books[parameters.Shelf]
@@ -123,7 +129,7 @@ func (service *Service) ListBooks(parameters *bookstore.ListBooksParameters, res
 	}
 	response := &bookstore.ListBooksResponse{}
 	response.Books = books
-	(*responses).OK = response
+	(*responses).OK = &bookstore.ListBooksOK{ApplicationJson: response}
 	return nil
 }
 
@@ -133,19 +139,22 @@ func (service *Service) CreateBook(parameters *bookstore.CreateBookParameters, r
 	// return "not found" if the shelf doesn't exist
 	shelf, err := service.getShelf(parameters.Shelf)
 	if err != nil {
-		(*responses).Default = &bookstore.Error{Code: int32(http.StatusNotFound), Message: err.Error()}
+		defaultResponse := &bookstore.CreateBookDefault{
+			ApplicationJson: &bookstore.Error{Code: int32(http.StatusNotFound), Message: err.Error()},
+		}
+		(*responses).Default = defaultResponse
 		return nil
 	}
 	// assign an id and name to a book and add it to the Books map.
 	service.LastBookID++
 	bid := service.LastBookID
-	book := parameters.Book
+	book := parameters.RequestBody.ApplicationJson
 	book.Name = fmt.Sprintf("%s/books/%d", shelf.Name, bid)
 	if service.Books[parameters.Shelf] == nil {
 		service.Books[parameters.Shelf] = make(map[int64]*bookstore.Book)
 	}
 	service.Books[parameters.Shelf][bid] = book
-	(*responses).OK = book
+	(*responses).OK = &bookstore.CreateBookOK{ApplicationJson: book}
 	return err
 }
 
@@ -155,9 +164,12 @@ func (service *Service) GetBook(parameters *bookstore.GetBookParameters, respons
 	// get a book from the Books map
 	book, err := service.getBook(parameters.Shelf, parameters.Book)
 	if err != nil {
-		(*responses).Default = &bookstore.Error{Code: int32(http.StatusNotFound), Message: err.Error()}
+		defaultResponse := &bookstore.GetBookDefault{
+			ApplicationJson: &bookstore.Error{Code: int32(http.StatusNotFound), Message: err.Error()},
+		}
+		(*responses).Default = defaultResponse
 	} else {
-		(*responses).OK = book
+		(*responses).OK = &bookstore.GetBookOK{ApplicationJson: book}
 	}
 	return nil
 }

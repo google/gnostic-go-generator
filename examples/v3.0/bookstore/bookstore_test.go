@@ -47,9 +47,9 @@ func TestBookstore(t *testing.T) {
 			t.Log("list shelves failed")
 			t.Fail()
 		}
-		if (response == nil) || (response.OK == nil) || (response.OK.Shelves != nil) {
+		if (response == nil) || (response.OK == nil) || (len(response.OK.ApplicationJson.Shelves) != 0) {
 			t.Log(fmt.Sprintf("list shelves failed %+v", response.OK))
-			t.Log(fmt.Sprintf("list shelves failed len=%d", len(response.OK.Shelves)))
+			t.Log(fmt.Sprintf("list shelves failed len=%d", len(response.OK.ApplicationJson.Shelves)))
 			t.Fail()
 		}
 	}
@@ -71,30 +71,36 @@ func TestBookstore(t *testing.T) {
 	}
 	// add a shelf
 	{
-		var shelf bookstore.Shelf
-		shelf.Theme = "mysteries"
-		response, err := b.CreateShelf(shelf)
+		var reqBody = bookstore.CreateShelfRequestBody{
+			ApplicationJson: &bookstore.Shelf{
+				Theme: "mysteries",
+			},
+		}
+		response, err := b.CreateShelf(reqBody)
 		if err != nil {
 			t.Log("create shelf mysteries failed")
 			t.Fail()
 		}
-		if (response.OK.Name != "shelves/1") ||
-			(response.OK.Theme != "mysteries") {
+		if (response.OK.ApplicationJson.Name != "shelves/1") ||
+			(response.OK.ApplicationJson.Theme != "mysteries") {
 			t.Log("create shelf mysteries failed")
 			t.Fail()
 		}
 	}
 	// add another shelf
 	{
-		var shelf bookstore.Shelf
-		shelf.Theme = "comedies"
-		response, err := b.CreateShelf(shelf)
+		var reqBody = bookstore.CreateShelfRequestBody{
+			ApplicationJson: &bookstore.Shelf{
+				Theme: "comedies",
+			},
+		}
+		response, err := b.CreateShelf(reqBody)
 		if err != nil {
 			t.Log("create shelf comedies failed")
 			t.Fail()
 		}
-		if (response.OK.Name != "shelves/2") ||
-			(response.OK.Theme != "comedies") {
+		if (response.OK.ApplicationJson.Name != "shelves/2") ||
+			(response.OK.ApplicationJson.Theme != "comedies") {
 			t.Log("create shelf comedies failed")
 			t.Fail()
 		}
@@ -106,8 +112,8 @@ func TestBookstore(t *testing.T) {
 			t.Log("get shelf mysteries failed")
 			t.Fail()
 		}
-		if (response.OK.Name != "shelves/1") ||
-			(response.OK.Theme != "mysteries") {
+		if (response.OK.ApplicationJson.Name != "shelves/1") ||
+			(response.OK.ApplicationJson.Theme != "mysteries") {
 			t.Log("get shelf mysteries failed")
 			t.Fail()
 		}
@@ -119,7 +125,7 @@ func TestBookstore(t *testing.T) {
 			t.Log("list shelves failed")
 			t.Fail()
 		}
-		if len(response.OK.Shelves) != 2 {
+		if len(response.OK.ApplicationJson.Shelves) != 2 {
 			t.Log("list shelves failed")
 			t.Fail()
 		}
@@ -139,7 +145,7 @@ func TestBookstore(t *testing.T) {
 			t.Log("list shelves failed")
 			t.Fail()
 		}
-		if len(response.OK.Shelves) != 1 {
+		if len(response.OK.ApplicationJson.Shelves) != 1 {
 			t.Log("list shelves failed")
 			t.Fail()
 		}
@@ -151,17 +157,20 @@ func TestBookstore(t *testing.T) {
 			t.Log("list books failed")
 			t.Fail()
 		}
-		if len(response.OK.Books) != 0 {
+		if len(response.OK.ApplicationJson.Books) != 0 {
 			t.Log("list books failed")
 			t.Fail()
 		}
 	}
 	// create a book
 	{
-		var book bookstore.Book
-		book.Author = "Agatha Christie"
-		book.Title = "And Then There Were None"
-		_, err := b.CreateBook(1, book)
+		var reqBody = bookstore.CreateBookRequestBody{
+			ApplicationJson: &bookstore.Book{
+				Author: "Agatha Christie",
+				Title:  "And Then There Were None",
+			},
+		}
+		_, err := b.CreateBook(1, reqBody)
 		if err != nil {
 			t.Log("create book failed")
 			t.Fail()
@@ -169,10 +178,13 @@ func TestBookstore(t *testing.T) {
 	}
 	// create another book
 	{
-		var book bookstore.Book
-		book.Author = "Agatha Christie"
-		book.Title = "Murder on the Orient Express"
-		_, err := b.CreateBook(1, book)
+		var reqBody = bookstore.CreateBookRequestBody{
+			ApplicationJson: &bookstore.Book{
+				Author: "Agatha Christie",
+				Title:  "Murder on the Orient Express",
+			},
+		}
+		_, err := b.CreateBook(1, reqBody)
 		if err != nil {
 			t.Log("create book failed")
 			t.Fail()
@@ -193,7 +205,7 @@ func TestBookstore(t *testing.T) {
 			t.Log("list books failed")
 			t.Fail()
 		}
-		if len(response.OK.Books) != 2 {
+		if len(response.OK.ApplicationJson.Books) != 2 {
 			t.Log("list books failed")
 			t.Fail()
 		}
@@ -213,7 +225,7 @@ func TestBookstore(t *testing.T) {
 			t.Log("list books failed")
 			t.Fail()
 		}
-		if len(response.OK.Books) != 1 {
+		if len(response.OK.ApplicationJson.Books) != 1 {
 			t.Log("list books failed")
 			t.Fail()
 		}
