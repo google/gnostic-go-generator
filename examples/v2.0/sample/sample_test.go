@@ -38,12 +38,12 @@ func TestSample(t *testing.T) {
 			t.Log("get sample failed")
 			t.Fail()
 		}
-		if response.OK.Id != message || response.OK.Count != int32(len(message)) {
-			t.Log(fmt.Sprintf("get sample received %+v", response.OK))
+		if response == nil || response.Id != message || response.Count != int32(len(message)) {
+			t.Log(fmt.Sprintf("get sample received %+v", response))
 			t.Fail()
 		}
-		if (response == nil) || (response.OK == nil) {
-			t.Log(fmt.Sprintf("get sample failed %+v", response.OK))
+		if response == nil {
+			t.Log(fmt.Sprintf("get sample failed %+v", response))
 			t.Fail()
 		}
 	}

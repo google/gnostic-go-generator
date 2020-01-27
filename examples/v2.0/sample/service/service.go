@@ -29,10 +29,10 @@ func NewService() *Service {
 	return &Service{}
 }
 
-func (service *Service) GetSample(parameters *sample.GetSampleParameters, responses *sample.GetSampleResponses) (err error) {
-	(*responses).OK = &sample.Sample{
+func (service *Service) GetSample(parameters *sample.GetSampleParameters, response *sample.Sample) (err error) {
+	*response = sample.Sample{
 		Id:    parameters.Id,
-		Thing: map[string]interface{}{"thing": 123},
+		Thing: &sample.Thing{"thing": 123},
 		Count: int32(len(parameters.Id))}
 	return err
 }
