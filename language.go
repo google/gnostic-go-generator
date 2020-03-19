@@ -18,7 +18,8 @@ import (
 	"strings"
 	"unicode"
 
-	surface "github.com/googleapis/gnostic/surface"
+	gnostic_grpc "github.com/googleapis/gnostic-grpc/generator"
+	surface_v1 "github.com/googleapis/gnostic/surface"
 )
 
 type GoLanguageModel struct{}
@@ -28,15 +29,14 @@ func NewGoLanguageModel() *GoLanguageModel {
 }
 
 // Prepare sets language-specific properties for all types and methods.
-func (language *GoLanguageModel) Prepare(model *surface.Model) {
-
+func (language *GoLanguageModel) Prepare(model *surface_v1.Model, inputDocumentType string) {
 	for _, t := range model.Types {
 		// determine the type used for Go language implementation of the type
 		t.TypeName = strings.Title(filteredTypeName(t.Name))
 
 		for _, f := range t.Fields {
-			f.FieldName = goFieldName(f.Name)
-			f.ParameterName = goParameterName(f.Name)
+			f.FieldName = goFieldName(f.Name, f.Type)
+			f.ParameterName = goParameterName(f.Name, f.Type)
 			switch f.Type {
 			case "boolean":
 				f.NativeType = "bool"
@@ -65,18 +65,20 @@ func (language *GoLanguageModel) Prepare(model *surface.Model) {
 		m.HandlerName = "Handle" + m.Name
 		m.ProcessorName = m.Name
 		m.ClientName = m.Name
+		m.ResponsesTypeName = strings.Title(filteredTypeName(m.ResponsesTypeName))
 	}
+	gnostic_grpc.AdjustSurfaceModel(model, inputDocumentType)
 }
 
-func goParameterName(name string) string {
+func goParameterName(originalName string, t string) string {
+	name := gnostic_grpc.CleanName(originalName)
+	if len(name) == 0 {
+		name = gnostic_grpc.CleanName(t)
+	}
 	// lowercase first letter
 	a := []rune(name)
 	a[0] = unicode.ToLower(a[0])
 	name = string(a)
-	// replace dots with underscores
-	name = strings.Replace(name, ".", "_", -1)
-	// replaces dashes with underscores
-	name = strings.Replace(name, "-", "_", -1)
 	// avoid reserved words
 	if name == "type" {
 		return "myType"
@@ -84,16 +86,12 @@ func goParameterName(name string) string {
 	return name
 }
 
-func goFieldName(name string) string {
-	name = strings.Replace(name, ".", "_", -1)
-	name = strings.Replace(name, "-", "_", -1)
-	name = snakeCaseToCamelCaseWithCapitalizedFirstLetter(name)
-	// avoid integers
-	if name == "200" {
-		return "OK"
-	} else if unicode.IsDigit(rune(name[0])) {
-		return "Code" + name
+func goFieldName(name string, t string) string {
+	name = gnostic_grpc.CleanName(name)
+	if len(name) == 0 {
+		name = gnostic_grpc.CleanName(t)
 	}
+	name = snakeCaseToCamelCaseWithCapitalizedFirstLetter(name)
 	return name
 }
 
