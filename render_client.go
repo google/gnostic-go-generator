@@ -108,11 +108,11 @@ func (renderer *Renderer) RenderClient() ([]byte, error) {
 		}
 
 		if method.Method == "POST" {
-			f.WriteLine(`reqBody := new(bytes.Buffer)`)
+			f.WriteLine(`payload := new(bytes.Buffer)`)
 			if parametersType != nil && parametersType.FieldWithPosition(surface.Position_BODY) != nil {
-				f.WriteLine(`json.NewEncoder(reqBody).Encode(` + parametersType.FieldWithPosition(surface.Position_BODY).ParameterName + `)`)
+				f.WriteLine(`json.NewEncoder(payload).Encode(` + parametersType.FieldWithPosition(surface.Position_BODY).ParameterName + `)`)
 			}
-			f.WriteLine(`req, err := http.NewRequest("` + method.Method + `", path, reqBody)`)
+			f.WriteLine(`req, err := http.NewRequest("` + method.Method + `", path, payload)`)
 			f.WriteLine(`reqHeaders := make(http.Header)`)
 			f.WriteLine(`reqHeaders.Set("Content-Type", "application/json")`)
 			f.WriteLine(`req.Header = reqHeaders`)

@@ -18,8 +18,8 @@ import (
 	"strings"
 	"unicode"
 
-	gnostic_grpc "github.com/googleapis/gnostic-grpc/generator"
-	surface_v1 "github.com/googleapis/gnostic/surface"
+	gnosticGrpc "github.com/googleapis/gnostic-grpc/generator"
+	surface "github.com/googleapis/gnostic/surface"
 )
 
 type GoLanguageModel struct{}
@@ -29,7 +29,7 @@ func NewGoLanguageModel() *GoLanguageModel {
 }
 
 // Prepare sets language-specific properties for all types and methods.
-func (language *GoLanguageModel) Prepare(model *surface_v1.Model, inputDocumentType string) {
+func (language *GoLanguageModel) Prepare(model *surface.Model, inputDocumentType string) {
 	for _, t := range model.Types {
 		// determine the type used for Go language implementation of the type
 		t.TypeName = strings.Title(filteredTypeName(t.Name))
@@ -67,13 +67,13 @@ func (language *GoLanguageModel) Prepare(model *surface_v1.Model, inputDocumentT
 		m.ClientName = m.Name
 		m.ResponsesTypeName = strings.Title(filteredTypeName(m.ResponsesTypeName))
 	}
-	gnostic_grpc.AdjustSurfaceModel(model, inputDocumentType)
+	gnosticGrpc.AdjustSurfaceModel(model, inputDocumentType)
 }
 
 func goParameterName(originalName string, t string) string {
-	name := gnostic_grpc.CleanName(originalName)
-	if len(name) == 0 {
-		name = gnostic_grpc.CleanName(t)
+	name := gnosticGrpc.CleanName(originalName)
+	if name == "" {
+		name = gnosticGrpc.CleanName(t)
 	}
 	// lowercase first letter
 	a := []rune(name)
@@ -87,15 +87,14 @@ func goParameterName(originalName string, t string) string {
 }
 
 func goFieldName(name string, t string) string {
-	name = gnostic_grpc.CleanName(name)
-	if len(name) == 0 {
-		name = gnostic_grpc.CleanName(t)
+	name = gnosticGrpc.CleanName(name)
+	if name == "" {
+		name = gnosticGrpc.CleanName(t)
 	}
-	name = snakeCaseToCamelCaseWithCapitalizedFirstLetter(name)
-	return name
+	return snakeToUpperCamel(name)
 }
 
-func snakeCaseToCamelCaseWithCapitalizedFirstLetter(snakeCase string) (camelCase string) {
+func snakeToUpperCamel(snakeCase string) (camelCase string) {
 	isToUpper := false
 	for _, runeValue := range snakeCase {
 		if isToUpper {
