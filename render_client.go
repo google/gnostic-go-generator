@@ -108,11 +108,11 @@ func (renderer *Renderer) RenderClient() ([]byte, error) {
 		}
 
 		if method.Method == "POST" {
-			f.WriteLine(`body := new(bytes.Buffer)`)
+			f.WriteLine(`payload := new(bytes.Buffer)`)
 			if parametersType != nil && parametersType.FieldWithPosition(surface.Position_BODY) != nil {
-				f.WriteLine(`json.NewEncoder(body).Encode(` + parametersType.FieldWithPosition(surface.Position_BODY).ParameterName + `)`)
+				f.WriteLine(`json.NewEncoder(payload).Encode(` + parametersType.FieldWithPosition(surface.Position_BODY).ParameterName + `)`)
 			}
-			f.WriteLine(`req, err := http.NewRequest("` + method.Method + `", path, body)`)
+			f.WriteLine(`req, err := http.NewRequest("` + method.Method + `", path, payload)`)
 			f.WriteLine(`reqHeaders := make(http.Header)`)
 			f.WriteLine(`reqHeaders.Set("Content-Type", "application/json")`)
 			f.WriteLine(`req.Header = reqHeaders`)
@@ -133,44 +133,15 @@ func (renderer *Renderer) RenderClient() ([]byte, error) {
 		f.WriteLine(`}`)
 
 		if responsesType != nil {
-			f.WriteLine(`response = &` + responsesType.Name + `{}`)
-
-			f.WriteLine(`switch {`)
-			// first handle everything that isn't "default"
-			for _, responseField := range responsesType.Fields {
-				if responseField.Name != "default" {
-					f.WriteLine(`case resp.StatusCode == ` + responseField.Name + `:`)
-					f.WriteLine(`  body, err := ioutil.ReadAll(resp.Body)`)
-					f.WriteLine(`  if err != nil {return nil, err}`)
-					f.WriteLine(`  result := &` + responseField.NativeType + `{}`)
-					f.WriteLine(`  err = json.Unmarshal(body, result)`)
-					f.WriteLine(`  if err != nil {return nil, err}`)
-					f.WriteLine(`  response.` + responseField.FieldName + ` = result`)
-				}
-			}
-
-			// then handle "default"
-			hasDefault := false
-			for _, responseField := range responsesType.Fields {
-				if responseField.Name == "default" {
-					hasDefault = true
-					f.WriteLine(`default:`)
-					f.WriteLine(`  defer resp.Body.Close()`)
-					f.WriteLine(`  body, err := ioutil.ReadAll(resp.Body)`)
-					f.WriteLine(`  if err != nil {return nil, err}`)
-					f.WriteLine(`  result := &` + responseField.NativeType + `{}`)
-					f.WriteLine(`  err = json.Unmarshal(body, result)`)
-					f.WriteLine(`  if err != nil {return nil, err}`)
-					f.WriteLine(`  response.` + responseField.FieldName + ` = result`)
-				}
-			}
-			if !hasDefault {
-				f.WriteLine(`default:`)
-				f.WriteLine(`  break`)
-			}
-			f.WriteLine(`}`) // close switch statement
+			f.WriteLine(`response = &` + responsesType.TypeName + `{}`)
+			f.WriteLine(`body, err := ioutil.ReadAll(resp.Body)`)
+			f.WriteLine(`if err != nil {return nil, err}`)
+			f.WriteLine(`err = json.Unmarshal(body, response)`)
+			f.WriteLine(`if err != nil {return nil, err}`)
+			f.WriteLine("return response, nil")
+		} else {
+			f.WriteLine("return nil")
 		}
-		f.WriteLine("return")
 		f.WriteLine("}")
 	}
 

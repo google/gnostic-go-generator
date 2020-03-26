@@ -16,6 +16,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	surface "github.com/googleapis/gnostic/surface"
 )
@@ -97,21 +98,24 @@ func (renderer *Renderer) RenderServer() ([]byte, error) {
 				}
 			}
 		}
+
+		responseName := ""
 		if responsesType != nil {
-			f.WriteLine(`// instantiate the responses structure`)
-			f.WriteLine(`responses := &` + method.ResponsesTypeName + `{}`)
+			responseName = strings.ToLower(method.ResponsesTypeName)
+			f.WriteLine(`// instantiate the response structure`)
+			f.WriteLine(responseName + ` := &` + method.ResponsesTypeName + `{}`)
 		}
 		f.WriteLine(`// call the service provider`)
 		callLine := `err = provider.` + method.ProcessorName
 		if parametersType != nil {
 			if responsesType != nil {
-				callLine += `(parameters, responses)`
+				callLine += fmt.Sprintf(`(parameters, %s)`, responseName)
 			} else {
 				callLine += `(parameters)`
 			}
 		} else {
 			if responsesType != nil {
-				callLine += `(responses)`
+				callLine += fmt.Sprintf(`(%s)`, responseName)
 			} else {
 				callLine += `()`
 			}
@@ -119,25 +123,10 @@ func (renderer *Renderer) RenderServer() ([]byte, error) {
 		f.WriteLine(callLine)
 		f.WriteLine(`if err == nil {`)
 		if responsesType != nil {
-			if responsesType.HasFieldWithName("OK") {
-				f.WriteLine(`if responses.OK != nil {`)
-				f.WriteLine(`  // write the normal response`)
-				f.WriteLine(`  encoder := json.NewEncoder(w)`)
-				f.WriteLine(`  encoder.Encode(responses.OK)`)
-				f.WriteLine(`  return`)
-				f.WriteLine(`}`)
-			}
-			if responsesType.HasFieldWithName("Default") {
-				f.WriteLine(`if responses.Default != nil {`)
-				f.WriteLine(`  // write the error response`)
-				if responsesType.FieldWithName("Default").ServiceType(renderer.Model).FieldWithName("Code") != nil {
-					f.WriteLine(`  w.WriteHeader(int(responses.Default.Code))`)
-				}
-				f.WriteLine(`  encoder := json.NewEncoder(w)`)
-				f.WriteLine(`  encoder.Encode(responses.Default)`)
-				f.WriteLine(`  return`)
-				f.WriteLine(`}`)
-			}
+			f.WriteLine(`  // write the normal response`)
+			f.WriteLine(`  encoder := json.NewEncoder(w)`)
+			f.WriteLine(fmt.Sprintf(`  encoder.Encode(%s)`, responseName))
+			f.WriteLine(`  return`)
 		}
 		f.WriteLine(`} else {`)
 		f.WriteLine(`  w.WriteHeader(http.StatusInternalServerError)`)

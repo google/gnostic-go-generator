@@ -34,14 +34,14 @@ func (renderer *Renderer) RenderProvider() ([]byte, error) {
 		if parametersType != nil {
 			if responsesType != nil {
 				f.WriteLine(method.ProcessorName +
-					`(parameters *` + parametersType.Name +
-					`, responses *` + responsesType.Name + `) (err error)`)
+					`(parameters *` + parametersType.TypeName +
+					`, responses *` + responsesType.TypeName + `) (err error)`)
 			} else {
-				f.WriteLine(method.ProcessorName + `(parameters *` + parametersType.Name + `) (err error)`)
+				f.WriteLine(method.ProcessorName + `(parameters *` + parametersType.TypeName + `) (err error)`)
 			}
 		} else {
 			if responsesType != nil {
-				f.WriteLine(method.ProcessorName + `(responses *` + responsesType.Name + `) (err error)`)
+				f.WriteLine(method.ProcessorName + `(responses *` + responsesType.TypeName + `) (err error)`)
 			} else {
 				f.WriteLine(method.ProcessorName + `() (err error)`)
 			}

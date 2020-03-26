@@ -19,7 +19,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"net/http"
 	"sync"
 
 	"github.com/googleapis/gnostic-go-generator/examples/v3.0/bookstore/bookstore"
@@ -46,7 +45,7 @@ func NewService() *Service {
 	}
 }
 
-func (service *Service) ListShelves(responses *bookstore.ListShelvesResponses) (err error) {
+func (service *Service) ListShelves(response *bookstore.ListShelvesResponse) (err error) {
 	service.Mutex.Lock()
 	defer service.Mutex.Unlock()
 	// copy shelf ids from Shelves map keys
@@ -54,13 +53,11 @@ func (service *Service) ListShelves(responses *bookstore.ListShelvesResponses) (
 	for _, shelf := range service.Shelves {
 		shelves = append(shelves, *shelf)
 	}
-	response := &bookstore.ListShelvesResponse{}
-	response.Shelves = shelves
-	(*responses).OK = response
+	(*response).Shelves = shelves
 	return err
 }
 
-func (service *Service) CreateShelf(parameters *bookstore.CreateShelfParameters, responses *bookstore.CreateShelfResponses) (err error) {
+func (service *Service) CreateShelf(parameters *bookstore.CreateShelfParameters, response *bookstore.Shelf) (err error) {
 	service.Mutex.Lock()
 	defer service.Mutex.Unlock()
 	// assign an id and name to a shelf and add it to the Shelves map.
@@ -69,7 +66,7 @@ func (service *Service) CreateShelf(parameters *bookstore.CreateShelfParameters,
 	sid := service.LastShelfID
 	shelf.Name = fmt.Sprintf("shelves/%d", sid)
 	service.Shelves[sid] = shelf
-	(*responses).OK = shelf
+	*response = *shelf
 	return err
 }
 
@@ -84,16 +81,15 @@ func (service *Service) DeleteShelves() (err error) {
 	return nil
 }
 
-func (service *Service) GetShelf(parameters *bookstore.GetShelfParameters, responses *bookstore.GetShelfResponses) (err error) {
+func (service *Service) GetShelf(parameters *bookstore.GetShelfParameters, response *bookstore.Shelf) (err error) {
 	service.Mutex.Lock()
 	defer service.Mutex.Unlock()
 	// look up a shelf from the Shelves map.
 	shelf, err := service.getShelf(parameters.Shelf)
 	if err != nil {
-		(*responses).Default = &bookstore.Error{Code: int32(http.StatusNotFound), Message: err.Error()}
-		return nil
+		return err
 	} else {
-		(*responses).OK = shelf
+		*response = *shelf
 		return nil
 	}
 }
@@ -107,34 +103,31 @@ func (service *Service) DeleteShelf(parameters *bookstore.DeleteShelfParameters)
 	return nil
 }
 
-func (service *Service) ListBooks(parameters *bookstore.ListBooksParameters, responses *bookstore.ListBooksResponses) (err error) {
+func (service *Service) ListBooks(parameters *bookstore.ListBooksParameters, response *bookstore.ListBooksResponse) (err error) {
 	service.Mutex.Lock()
 	defer service.Mutex.Unlock()
 	// list the books in a shelf
 	_, err = service.getShelf(parameters.Shelf)
 	if err != nil {
-		(*responses).Default = &bookstore.Error{Code: int32(http.StatusNotFound), Message: err.Error()}
-		return nil
+		return err
 	}
 	shelfBooks := service.Books[parameters.Shelf]
 	books := make([]bookstore.Book, 0, len(shelfBooks))
 	for _, book := range shelfBooks {
 		books = append(books, *book)
 	}
-	response := &bookstore.ListBooksResponse{}
-	response.Books = books
-	(*responses).OK = response
+
+	(*response).Books = books
 	return nil
 }
 
-func (service *Service) CreateBook(parameters *bookstore.CreateBookParameters, responses *bookstore.CreateBookResponses) (err error) {
+func (service *Service) CreateBook(parameters *bookstore.CreateBookParameters, response *bookstore.Book) (err error) {
 	service.Mutex.Lock()
 	defer service.Mutex.Unlock()
 	// return "not found" if the shelf doesn't exist
 	shelf, err := service.getShelf(parameters.Shelf)
 	if err != nil {
-		(*responses).Default = &bookstore.Error{Code: int32(http.StatusNotFound), Message: err.Error()}
-		return nil
+		return err
 	}
 	// assign an id and name to a book and add it to the Books map.
 	service.LastBookID++
@@ -145,19 +138,19 @@ func (service *Service) CreateBook(parameters *bookstore.CreateBookParameters, r
 		service.Books[parameters.Shelf] = make(map[int64]*bookstore.Book)
 	}
 	service.Books[parameters.Shelf][bid] = book
-	(*responses).OK = book
+	*response = *book
 	return err
 }
 
-func (service *Service) GetBook(parameters *bookstore.GetBookParameters, responses *bookstore.GetBookResponses) (err error) {
+func (service *Service) GetBook(parameters *bookstore.GetBookParameters, response *bookstore.Book) (err error) {
 	service.Mutex.Lock()
 	defer service.Mutex.Unlock()
 	// get a book from the Books map
 	book, err := service.getBook(parameters.Shelf, parameters.Book)
 	if err != nil {
-		(*responses).Default = &bookstore.Error{Code: int32(http.StatusNotFound), Message: err.Error()}
+		return err
 	} else {
-		(*responses).OK = book
+		*response = *book
 	}
 	return nil
 }

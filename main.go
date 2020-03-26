@@ -47,6 +47,7 @@ func main() {
 		files = []string{"client.go", "server.go", "provider.go", "types.go", "constants.go"}
 	}
 
+	inputDocumentType := env.Request.Models[0].TypeUrl
 	for _, model := range env.Request.Models {
 		switch model.TypeUrl {
 		case "surface.v1.Model":
@@ -54,7 +55,7 @@ func main() {
 			err = proto.Unmarshal(model.Value, surfaceModel)
 			if err == nil {
 				// Customize the code surface model for Go
-				NewGoLanguageModel().Prepare(surfaceModel)
+				NewGoLanguageModel().Prepare(surfaceModel, inputDocumentType)
 
 				modelJSON, _ := json.MarshalIndent(surfaceModel, "", "  ")
 				modelFile := &plugins.File{Name: "model.json", Data: modelJSON}
