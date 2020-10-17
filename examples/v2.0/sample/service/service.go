@@ -17,6 +17,8 @@
 package main
 
 import (
+	"context"
+
 	"github.com/googleapis/gnostic-go-generator/examples/v2.0/sample/sample"
 )
 
@@ -29,7 +31,7 @@ func NewService() *Service {
 	return &Service{}
 }
 
-func (service *Service) GetSample(parameters *sample.GetSampleParameters, response *sample.Sample) (err error) {
+func (service *Service) GetSample(ctx context.Context, parameters *sample.GetSampleParameters, response *sample.Sample) (err error) {
 	*response = sample.Sample{
 		Id:    parameters.Id,
 		Thing: &sample.Thing{"thing": 123},

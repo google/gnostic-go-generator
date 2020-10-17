@@ -109,15 +109,15 @@ func (renderer *Renderer) RenderServer() ([]byte, error) {
 		callLine := `err = provider.` + method.ProcessorName
 		if parametersType != nil {
 			if responsesType != nil {
-				callLine += fmt.Sprintf(`(parameters, %s)`, responseName)
+				callLine += fmt.Sprintf(`(r.Context(), parameters, %s)`, responseName)
 			} else {
-				callLine += `(parameters)`
+				callLine += `(r.Context(), parameters)`
 			}
 		} else {
 			if responsesType != nil {
-				callLine += fmt.Sprintf(`(%s)`, responseName)
+				callLine += fmt.Sprintf(`(r.Context(), %s)`, responseName)
 			} else {
-				callLine += `()`
+				callLine += `(r.Context())`
 			}
 		}
 		f.WriteLine(callLine)

@@ -23,6 +23,8 @@ func (renderer *Renderer) RenderProvider() ([]byte, error) {
 	f.WriteLine("// GENERATED FILE: DO NOT EDIT!\n")
 	f.WriteLine("package " + renderer.Package)
 	f.WriteLine(``)
+	f.WriteLine(`import "context"`)
+	f.WriteLine(``)
 	f.WriteLine(`// To create a server, first write a class that implements this interface.`)
 	f.WriteLine(`// Then pass an instance of it to Initialize().`)
 	f.WriteLine(`type Provider interface {`)
@@ -34,16 +36,16 @@ func (renderer *Renderer) RenderProvider() ([]byte, error) {
 		if parametersType != nil {
 			if responsesType != nil {
 				f.WriteLine(method.ProcessorName +
-					`(parameters *` + parametersType.TypeName +
+					`(ctx context.Context, parameters *` + parametersType.TypeName +
 					`, responses *` + responsesType.TypeName + `) (err error)`)
 			} else {
-				f.WriteLine(method.ProcessorName + `(parameters *` + parametersType.TypeName + `) (err error)`)
+				f.WriteLine(method.ProcessorName + `(ctx context.Context, parameters *` + parametersType.TypeName + `) (err error)`)
 			}
 		} else {
 			if responsesType != nil {
-				f.WriteLine(method.ProcessorName + `(responses *` + responsesType.TypeName + `) (err error)`)
+				f.WriteLine(method.ProcessorName + `(ctx context.Context, responses *` + responsesType.TypeName + `) (err error)`)
 			} else {
-				f.WriteLine(method.ProcessorName + `() (err error)`)
+				f.WriteLine(method.ProcessorName + `(ctx context.Context, ) (err error)`)
 			}
 		}
 	}

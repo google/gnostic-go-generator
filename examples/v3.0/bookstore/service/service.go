@@ -17,6 +17,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"sync"
@@ -45,7 +46,7 @@ func NewService() *Service {
 	}
 }
 
-func (service *Service) ListShelves(response *bookstore.ListShelvesResponse) (err error) {
+func (service *Service) ListShelves(ctx context.Context, response *bookstore.ListShelvesResponse) (err error) {
 	service.Mutex.Lock()
 	defer service.Mutex.Unlock()
 	// copy shelf ids from Shelves map keys
@@ -57,7 +58,7 @@ func (service *Service) ListShelves(response *bookstore.ListShelvesResponse) (er
 	return err
 }
 
-func (service *Service) CreateShelf(parameters *bookstore.CreateShelfParameters, response *bookstore.Shelf) (err error) {
+func (service *Service) CreateShelf(ctx context.Context, parameters *bookstore.CreateShelfParameters, response *bookstore.Shelf) (err error) {
 	service.Mutex.Lock()
 	defer service.Mutex.Unlock()
 	// assign an id and name to a shelf and add it to the Shelves map.
@@ -70,7 +71,7 @@ func (service *Service) CreateShelf(parameters *bookstore.CreateShelfParameters,
 	return err
 }
 
-func (service *Service) DeleteShelves() (err error) {
+func (service *Service) DeleteShelves(ctx context.Context) (err error) {
 	service.Mutex.Lock()
 	defer service.Mutex.Unlock()
 	// delete everything by reinitializing the Shelves and Books maps.
@@ -81,7 +82,7 @@ func (service *Service) DeleteShelves() (err error) {
 	return nil
 }
 
-func (service *Service) GetShelf(parameters *bookstore.GetShelfParameters, response *bookstore.Shelf) (err error) {
+func (service *Service) GetShelf(ctx context.Context, parameters *bookstore.GetShelfParameters, response *bookstore.Shelf) (err error) {
 	service.Mutex.Lock()
 	defer service.Mutex.Unlock()
 	// look up a shelf from the Shelves map.
@@ -94,7 +95,7 @@ func (service *Service) GetShelf(parameters *bookstore.GetShelfParameters, respo
 	}
 }
 
-func (service *Service) DeleteShelf(parameters *bookstore.DeleteShelfParameters) (err error) {
+func (service *Service) DeleteShelf(ctx context.Context, parameters *bookstore.DeleteShelfParameters) (err error) {
 	service.Mutex.Lock()
 	defer service.Mutex.Unlock()
 	// delete a shelf by removing the shelf from the Shelves map and the associated books from the Books map.
@@ -103,7 +104,7 @@ func (service *Service) DeleteShelf(parameters *bookstore.DeleteShelfParameters)
 	return nil
 }
 
-func (service *Service) ListBooks(parameters *bookstore.ListBooksParameters, response *bookstore.ListBooksResponse) (err error) {
+func (service *Service) ListBooks(ctx context.Context, parameters *bookstore.ListBooksParameters, response *bookstore.ListBooksResponse) (err error) {
 	service.Mutex.Lock()
 	defer service.Mutex.Unlock()
 	// list the books in a shelf
@@ -121,7 +122,7 @@ func (service *Service) ListBooks(parameters *bookstore.ListBooksParameters, res
 	return nil
 }
 
-func (service *Service) CreateBook(parameters *bookstore.CreateBookParameters, response *bookstore.Book) (err error) {
+func (service *Service) CreateBook(ctx context.Context, parameters *bookstore.CreateBookParameters, response *bookstore.Book) (err error) {
 	service.Mutex.Lock()
 	defer service.Mutex.Unlock()
 	// return "not found" if the shelf doesn't exist
@@ -142,7 +143,7 @@ func (service *Service) CreateBook(parameters *bookstore.CreateBookParameters, r
 	return err
 }
 
-func (service *Service) GetBook(parameters *bookstore.GetBookParameters, response *bookstore.Book) (err error) {
+func (service *Service) GetBook(ctx context.Context, parameters *bookstore.GetBookParameters, response *bookstore.Book) (err error) {
 	service.Mutex.Lock()
 	defer service.Mutex.Unlock()
 	// get a book from the Books map
@@ -155,7 +156,7 @@ func (service *Service) GetBook(parameters *bookstore.GetBookParameters, respons
 	return nil
 }
 
-func (service *Service) DeleteBook(parameters *bookstore.DeleteBookParameters) (err error) {
+func (service *Service) DeleteBook(ctx context.Context, parameters *bookstore.DeleteBookParameters) (err error) {
 	service.Mutex.Lock()
 	defer service.Mutex.Unlock()
 	// delete a book by removing the book from the Books map.
