@@ -15,6 +15,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -45,7 +46,8 @@ Usage:
 
 	// get
 	if arguments["get"].(bool) {
-		response, err := c.Urlshortener_Url_Get("FULL", arguments["<url>"].(string))
+		ctx := context.Background()
+		response, err := c.Urlshortener_Url_Get(ctx, "FULL", arguments["<url>"].(string))
 		if err != nil {
 			log.Fatalf("%+v", err)
 		}
@@ -54,7 +56,8 @@ Usage:
 
 	// list
 	if arguments["list"].(bool) {
-		response, err := c.Urlshortener_Url_List("", "")
+		ctx := context.Background()
+		response, err := c.Urlshortener_Url_List(ctx, "", "")
 		if err != nil {
 			log.Fatalf("%+v", err)
 		}
@@ -65,9 +68,10 @@ Usage:
 
 	// insert
 	if arguments["insert"].(bool) {
+		ctx := context.Background()
 		var url urlshortener.Url
 		url.LongUrl = arguments["<url>"].(string)
-		response, err := c.Urlshortener_Url_Insert(url)
+		response, err := c.Urlshortener_Url_Insert(ctx, url)
 		if err != nil {
 			log.Fatalf("%+v", err)
 		}

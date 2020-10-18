@@ -17,6 +17,7 @@
 package test
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -32,8 +33,9 @@ func TestSample(t *testing.T) {
 	s := sample.NewClient(service, nil)
 	// verify a sample request
 	{
+		ctx := context.Background()
 		message := "hello world"
-		response, err := s.GetSample(message)
+		response, err := s.GetSample(ctx, message)
 		if err != nil {
 			t.Log("get sample failed")
 			t.Fail()
