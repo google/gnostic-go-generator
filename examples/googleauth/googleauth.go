@@ -117,8 +117,11 @@ func readConfig(scopes []string) (*oauth2.Config, error) {
 		ClientID:     cfg.Installed.ClientID,
 		ClientSecret: cfg.Installed.ClientSecret,
 		Scopes:       scopes,
-		Endpoint:     oauth2.Endpoint{cfg.Installed.AuthURI, cfg.Installed.TokenURI},
-		RedirectURL:  redirectURI,
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  cfg.Installed.AuthURI,
+			TokenURL: cfg.Installed.TokenURI,
+		},
+		RedirectURL: redirectURI,
 	}, nil
 }
 

@@ -38,9 +38,12 @@ func (renderer *Renderer) RenderServer() ([]byte, error) {
 	}
 	f.WriteLine(`)`)
 
-	f.WriteLine(`func intValue(s string) (v int64) {`)
-	f.WriteLine(`	v, _ = strconv.ParseInt(s, 10, 64)`)
-	f.WriteLine(`	return v`)
+	f.WriteLine(`func int64Value(s string) (int64, error) {`)
+	f.WriteLine(`	return strconv.ParseInt(s, 10, 64)`)
+	f.WriteLine(`}`)
+	f.WriteLine(``)
+	f.WriteLine(`func intValue(s string) (int, error) {`)
+	f.WriteLine(`	return strconv.Atoi(s)`)
 	f.WriteLine(`}`)
 	f.WriteLine(``)
 	f.WriteLine(`// This package-global variable holds the user-written Provider for API services.`)
@@ -86,14 +89,20 @@ func (renderer *Renderer) RenderServer() ([]byte, error) {
 						f.WriteLine(`if value, ok := vars["` + field.Name + `"]; ok {`)
 						f.WriteLine(`	parameters.` + field.FieldName + ` = value`)
 						f.WriteLine(`}`)
-					} else {
+					} else if field.Type == "number" {
+						f.WriteLine(fmt.Sprintf("// %+v", field))
 						f.WriteLine(`if value, ok := vars["` + field.Name + `"]; ok {`)
-						f.WriteLine(`	parameters.` + field.FieldName + ` = intValue(value)`)
+						f.WriteLine(`	parameters.` + field.FieldName + `, _ = intValue(value)`)
+						f.WriteLine(`}`)
+					} else { // field.Type == "integer", "boolean", "array"
+						f.WriteLine(fmt.Sprintf("// %+v", field))
+						f.WriteLine(`if value, ok := vars["` + field.Name + `"]; ok {`)
+						f.WriteLine(`	parameters.` + field.FieldName + `, _ = int64Value(value)`)
 						f.WriteLine(`}`)
 					}
 				} else if field.Position == surface.Position_FORMDATA {
 					f.WriteLine(`if len(r.Form["` + field.Name + `"]) > 0 {`)
-					f.WriteLine(`	parameters.` + field.FieldName + ` = intValue(r.Form["` + field.Name + `"][0])`)
+					f.WriteLine(`	parameters.` + field.FieldName + `, _ = int64Value(r.Form["` + field.Name + `"][0])`)
 					f.WriteLine(`}`)
 				}
 			}
