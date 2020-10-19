@@ -22,7 +22,7 @@ import (
 
 // ParameterList returns a string representation of a method's parameters
 func ParameterList(parametersType *surface.Type) string {
-	result := ""
+	result := "ctx context.Context,\n"
 	if parametersType != nil {
 		for _, field := range parametersType.Fields {
 			result += field.ParameterName + " " + field.NativeType + "," + "\n"
@@ -113,11 +113,13 @@ func (renderer *Renderer) RenderClient() ([]byte, error) {
 				f.WriteLine(`json.NewEncoder(payload).Encode(` + parametersType.FieldWithPosition(surface.Position_BODY).ParameterName + `)`)
 			}
 			f.WriteLine(`req, err := http.NewRequest("` + method.Method + `", path, payload)`)
+			f.WriteLine(`req = req.WithContext(ctx)`)
 			f.WriteLine(`reqHeaders := make(http.Header)`)
 			f.WriteLine(`reqHeaders.Set("Content-Type", "application/json")`)
 			f.WriteLine(`req.Header = reqHeaders`)
 		} else {
 			f.WriteLine(`req, err := http.NewRequest("` + method.Method + `", path, nil)`)
+			f.WriteLine(`req = req.WithContext(ctx)`)
 		}
 		f.WriteLine(`if err != nil {return}`)
 		f.WriteLine(`resp, err := client.client.Do(req)`)

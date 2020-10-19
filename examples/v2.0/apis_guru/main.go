@@ -19,6 +19,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"sort"
 
@@ -34,7 +35,8 @@ func main() {
 	}
 	fmt.Printf("%+v\n", metrics)
 
-	apis, err := c.ListAPIs()
+	ctx := context.Background()
+	apis, err := c.ListAPIs(ctx)
 	if err != nil {
 		panic(err)
 	}

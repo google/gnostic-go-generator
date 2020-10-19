@@ -15,6 +15,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/googleapis/gnostic-go-generator/examples/v2.0/xkcd/xkcd"
@@ -23,13 +24,14 @@ import (
 func main() {
 	c := xkcd.NewClient("http://xkcd.com", nil)
 
-	comic, err := c.GET_info_0_json()
+	ctx := context.Background()
+	comic, err := c.GET_info_0_json(ctx)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("%+v\n", comic)
 
-	comic, err = c.GET_comicId_info_0_json(1800)
+	comic, err = c.GET_comicId_info_0_json(ctx, 1800)
 	if err != nil {
 		panic(err)
 	}
