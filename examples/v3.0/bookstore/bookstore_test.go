@@ -17,6 +17,7 @@
 package test
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -34,7 +35,8 @@ func TestBookstore(t *testing.T) {
 	b := bookstore.NewClient(service, nil)
 	// reset the service by deleting all shelves
 	{
-		err := b.DeleteShelves()
+		ctx := context.Background()
+		err := b.DeleteShelves(ctx)
 		if err != nil {
 			t.Log("delete shelves failed")
 			t.Fail()
@@ -42,7 +44,8 @@ func TestBookstore(t *testing.T) {
 	}
 	// verify that the service has no shelves
 	{
-		response, err := b.ListShelves()
+		ctx := context.Background()
+		response, err := b.ListShelves(ctx)
 		if err != nil {
 			t.Log("list shelves failed")
 			t.Fail()
@@ -55,7 +58,8 @@ func TestBookstore(t *testing.T) {
 	}
 	// attempting to get a shelf should return an error
 	{
-		response, err := b.GetShelf(1)
+		ctx := context.Background()
+		response, err := b.GetShelf(ctx, 1)
 		if err == nil {
 			t.Logf("get shelf failed to return an error (%+v)", response)
 			t.Fail()
@@ -63,7 +67,8 @@ func TestBookstore(t *testing.T) {
 	}
 	// attempting to get a book should return an error
 	{
-		response, err := b.GetBook(1, 2)
+		ctx := context.Background()
+		response, err := b.GetBook(ctx, 1, 2)
 		if err == nil {
 			t.Logf("get book failed to return an error (%+v)", response)
 			t.Fail()
@@ -71,9 +76,10 @@ func TestBookstore(t *testing.T) {
 	}
 	// add a shelf
 	{
+		ctx := context.Background()
 		var shelf bookstore.Shelf
 		shelf.Theme = "mysteries"
-		response, err := b.CreateShelf(shelf)
+		response, err := b.CreateShelf(ctx, shelf)
 		if err != nil {
 			t.Log("create shelf mysteries failed")
 			t.Fail()
@@ -85,9 +91,10 @@ func TestBookstore(t *testing.T) {
 	}
 	// add another shelf
 	{
+		ctx := context.Background()
 		var shelf bookstore.Shelf
 		shelf.Theme = "comedies"
-		response, err := b.CreateShelf(shelf)
+		response, err := b.CreateShelf(ctx, shelf)
 		if err != nil {
 			t.Log("create shelf comedies failed")
 			t.Fail()
@@ -99,7 +106,8 @@ func TestBookstore(t *testing.T) {
 	}
 	// get the first shelf that was added
 	{
-		response, err := b.GetShelf(1)
+		ctx := context.Background()
+		response, err := b.GetShelf(ctx, 1)
 		if err != nil {
 			t.Log("get shelf mysteries failed")
 			t.Fail()
@@ -111,7 +119,8 @@ func TestBookstore(t *testing.T) {
 	}
 	// list shelves and verify that there are 2
 	{
-		response, err := b.ListShelves()
+		ctx := context.Background()
+		response, err := b.ListShelves(ctx)
 		if err != nil {
 			t.Log("list shelves failed")
 			t.Fail()
@@ -123,7 +132,8 @@ func TestBookstore(t *testing.T) {
 	}
 	// delete a shelf
 	{
-		err := b.DeleteShelf(2)
+		ctx := context.Background()
+		err := b.DeleteShelf(ctx, 2)
 		if err != nil {
 			t.Log("delete shelf failed")
 			t.Fail()
@@ -131,7 +141,8 @@ func TestBookstore(t *testing.T) {
 	}
 	// list shelves and verify that there is only 1
 	{
-		response, err := b.ListShelves()
+		ctx := context.Background()
+		response, err := b.ListShelves(ctx)
 		if err != nil {
 			t.Log("list shelves failed")
 			t.Fail()
@@ -143,7 +154,8 @@ func TestBookstore(t *testing.T) {
 	}
 	// list books on a shelf, verify that there are none
 	{
-		response, err := b.ListBooks(1)
+		ctx := context.Background()
+		response, err := b.ListBooks(ctx, 1)
 		if err != nil {
 			t.Log("list books failed")
 			t.Fail()
@@ -155,10 +167,11 @@ func TestBookstore(t *testing.T) {
 	}
 	// create a book
 	{
+		ctx := context.Background()
 		var book bookstore.Book
 		book.Author = "Agatha Christie"
 		book.Title = "And Then There Were None"
-		_, err := b.CreateBook(1, book)
+		_, err := b.CreateBook(ctx, 1, book)
 		if err != nil {
 			t.Log("create book failed")
 			t.Fail()
@@ -166,10 +179,11 @@ func TestBookstore(t *testing.T) {
 	}
 	// create another book
 	{
+		ctx := context.Background()
 		var book bookstore.Book
 		book.Author = "Agatha Christie"
 		book.Title = "Murder on the Orient Express"
-		_, err := b.CreateBook(1, book)
+		_, err := b.CreateBook(ctx, 1, book)
 		if err != nil {
 			t.Log("create book failed")
 			t.Fail()
@@ -177,7 +191,8 @@ func TestBookstore(t *testing.T) {
 	}
 	// get the first book that was added
 	{
-		_, err := b.GetBook(1, 1)
+		ctx := context.Background()
+		_, err := b.GetBook(ctx, 1, 1)
 		if err != nil {
 			t.Log("get book failed")
 			t.Fail()
@@ -185,7 +200,8 @@ func TestBookstore(t *testing.T) {
 	}
 	// list the books on a shelf and verify that there are 2
 	{
-		response, err := b.ListBooks(1)
+		ctx := context.Background()
+		response, err := b.ListBooks(ctx, 1)
 		if err != nil {
 			t.Log("list books failed")
 			t.Fail()
@@ -197,7 +213,8 @@ func TestBookstore(t *testing.T) {
 	}
 	// delete a book
 	{
-		err := b.DeleteBook(1, 2)
+		ctx := context.Background()
+		err := b.DeleteBook(ctx, 1, 2)
 		if err != nil {
 			t.Log("delete book failed")
 			t.Fail()
@@ -205,7 +222,8 @@ func TestBookstore(t *testing.T) {
 	}
 	// list the books on a shelf and verify that is only 1
 	{
-		response, err := b.ListBooks(1)
+		ctx := context.Background()
+		response, err := b.ListBooks(ctx, 1)
 		if err != nil {
 			t.Log("list books failed")
 			t.Fail()
