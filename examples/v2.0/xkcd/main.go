@@ -22,7 +22,7 @@ import (
 )
 
 func main() {
-	c := xkcd.NewClient("http://xkcd.com")
+	c := xkcd.NewClient("http://xkcd.com", nil)
 
 	ctx := context.Background()
 	comic, err := c.GET_info_0_json(ctx)
