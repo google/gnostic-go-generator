@@ -31,7 +31,9 @@ func main() {
 	}
 	fmt.Printf("%+v\n", comic)
 
-	comic, err = c.GET_comicId_info_0_json(ctx, 1800)
+	comic, err = c.GET_comicId_info_0_json(ctx, xkcd.GET_comicId_info_0_jsonParameters{
+		ComicId: 1800,
+	})
 	if err != nil {
 		panic(err)
 	}
