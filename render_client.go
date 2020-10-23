@@ -20,13 +20,13 @@ import (
 	surface "github.com/googleapis/gnostic/surface"
 )
 
+const parameters = "parameters"
+
 // ParameterList returns a string representation of a method's parameters
 func ParameterList(parametersType *surface.Type) string {
 	result := "ctx context.Context,\n"
 	if parametersType != nil {
-		for _, field := range parametersType.Fields {
-			result += field.ParameterName + " " + field.NativeType + "," + "\n"
-		}
+		result += parameters + " " + parametersType.Name
 	}
 	return result
 }
@@ -83,7 +83,7 @@ func (renderer *Renderer) RenderClient() ([]byte, error) {
 				for _, field := range parametersType.Fields {
 					if field.Position == surface.Position_PATH {
 						f.WriteLine(`path = strings.Replace(path, "{` + field.Name + `}", fmt.Sprintf("%v", ` +
-							field.ParameterName + `), 1)`)
+							parameters + "." + strings.Title(field.ParameterName) + `), 1)`)
 					}
 				}
 			}
@@ -92,8 +92,8 @@ func (renderer *Renderer) RenderClient() ([]byte, error) {
 				for _, field := range parametersType.Fields {
 					if field.Position == surface.Position_QUERY {
 						if field.NativeType == "string" {
-							f.WriteLine(`if (` + field.ParameterName + ` != "") {`)
-							f.WriteLine(`  v.Set("` + field.Name + `", ` + field.ParameterName + `)`)
+							f.WriteLine(`if (` + parameters + "." + strings.Title(field.ParameterName) + ` != "") {`)
+							f.WriteLine(`  v.Set("` + field.Name + `", ` + parameters + "." + strings.Title(field.ParameterName) + `)`)
 							f.WriteLine(`}`)
 						}
 					}
@@ -110,18 +110,17 @@ func (renderer *Renderer) RenderClient() ([]byte, error) {
 		if method.Method == "POST" {
 			f.WriteLine(`payload := new(bytes.Buffer)`)
 			if parametersType != nil && parametersType.FieldWithPosition(surface.Position_BODY) != nil {
-				f.WriteLine(`json.NewEncoder(payload).Encode(` + parametersType.FieldWithPosition(surface.Position_BODY).ParameterName + `)`)
+				f.WriteLine(`json.NewEncoder(payload).Encode(` + parameters + "." + strings.Title(parametersType.FieldWithPosition(surface.Position_BODY).FieldName) + `)`)
 			}
 			f.WriteLine(`req, err := http.NewRequest("` + method.Method + `", path, payload)`)
-			f.WriteLine(`req = req.WithContext(ctx)`)
 			f.WriteLine(`reqHeaders := make(http.Header)`)
 			f.WriteLine(`reqHeaders.Set("Content-Type", "application/json")`)
 			f.WriteLine(`req.Header = reqHeaders`)
 		} else {
 			f.WriteLine(`req, err := http.NewRequest("` + method.Method + `", path, nil)`)
-			f.WriteLine(`req = req.WithContext(ctx)`)
 		}
 		f.WriteLine(`if err != nil {return}`)
+		f.WriteLine(`req = req.WithContext(ctx)`)
 		f.WriteLine(`resp, err := client.client.Do(req)`)
 		f.WriteLine(`if err != nil {return}`)
 		f.WriteLine(`defer resp.Body.Close()`)

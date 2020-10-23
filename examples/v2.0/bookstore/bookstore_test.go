@@ -59,7 +59,9 @@ func TestBookstore(t *testing.T) {
 	// attempting to get a shelf should return an error
 	{
 		ctx := context.Background()
-		_, err := b.GetShelf(ctx, 1)
+		_, err := b.GetShelf(ctx, bookstore.GetShelfParameters{
+			Shelf: 1,
+		})
 		if err == nil {
 			t.Log("get shelf failed to return an error")
 			t.Fail()
@@ -68,7 +70,10 @@ func TestBookstore(t *testing.T) {
 	// attempting to get a book should return an error
 	{
 		ctx := context.Background()
-		_, err := b.GetBook(ctx, 1, 2)
+		_, err := b.GetBook(ctx, bookstore.GetBookParameters{
+			Shelf: 1,
+			Book:  2,
+		})
 		if err == nil {
 			t.Log("get book failed to return an error")
 			t.Fail()
@@ -79,7 +84,9 @@ func TestBookstore(t *testing.T) {
 		ctx := context.Background()
 		var shelf bookstore.Shelf
 		shelf.Theme = "mysteries"
-		response, err := b.CreateShelf(ctx, shelf)
+		response, err := b.CreateShelf(ctx, bookstore.CreateShelfParameters{
+			Shelf: &shelf,
+		})
 		if err != nil {
 			t.Log("create shelf mysteries failed")
 			t.Fail()
@@ -94,7 +101,9 @@ func TestBookstore(t *testing.T) {
 		ctx := context.Background()
 		var shelf bookstore.Shelf
 		shelf.Theme = "comedies"
-		response, err := b.CreateShelf(ctx, shelf)
+		response, err := b.CreateShelf(ctx, bookstore.CreateShelfParameters{
+			Shelf: &shelf,
+		})
 		if err != nil {
 			t.Log("create shelf comedies failed")
 			t.Fail()
@@ -107,7 +116,9 @@ func TestBookstore(t *testing.T) {
 	// get the first shelf that was added
 	{
 		ctx := context.Background()
-		response, err := b.GetShelf(ctx, 1)
+		response, err := b.GetShelf(ctx, bookstore.GetShelfParameters{
+			1,
+		})
 		if err != nil {
 			t.Log("get shelf mysteries failed")
 			t.Fail()
@@ -133,7 +144,9 @@ func TestBookstore(t *testing.T) {
 	// delete a shelf
 	{
 		ctx := context.Background()
-		err := b.DeleteShelf(ctx, 2)
+		err := b.DeleteShelf(ctx, bookstore.DeleteShelfParameters{
+			Shelf: 2,
+		})
 		if err != nil {
 			t.Log("delete shelf failed")
 			t.Fail()
@@ -155,7 +168,9 @@ func TestBookstore(t *testing.T) {
 	// list books on a shelf, verify that there are none
 	{
 		ctx := context.Background()
-		response, err := b.ListBooks(ctx, 1)
+		response, err := b.ListBooks(ctx, bookstore.ListBooksParameters{
+			1,
+		})
 		if err != nil {
 			t.Log("list books failed")
 			t.Fail()
@@ -171,7 +186,10 @@ func TestBookstore(t *testing.T) {
 		var book bookstore.Book
 		book.Author = "Agatha Christie"
 		book.Title = "And Then There Were None"
-		_, err := b.CreateBook(ctx, 1, book)
+		_, err := b.CreateBook(ctx, bookstore.CreateBookParameters{
+			Shelf: 1,
+			Book:  &book,
+		})
 		if err != nil {
 			t.Log("create book failed")
 			t.Fail()
@@ -183,7 +201,10 @@ func TestBookstore(t *testing.T) {
 		var book bookstore.Book
 		book.Author = "Agatha Christie"
 		book.Title = "Murder on the Orient Express"
-		_, err := b.CreateBook(ctx, 1, book)
+		_, err := b.CreateBook(ctx, bookstore.CreateBookParameters{
+			Shelf: 1,
+			Book:  &book,
+		})
 		if err != nil {
 			t.Log("create book failed")
 			t.Fail()
@@ -192,7 +213,10 @@ func TestBookstore(t *testing.T) {
 	// get the first book that was added
 	{
 		ctx := context.Background()
-		_, err := b.GetBook(ctx, 1, 1)
+		_, err := b.GetBook(ctx, bookstore.GetBookParameters{
+			Shelf: 1,
+			Book:  1,
+		})
 		if err != nil {
 			t.Log("get book failed")
 			t.Fail()
@@ -201,7 +225,9 @@ func TestBookstore(t *testing.T) {
 	// list the books on a shelf and verify that there are 2
 	{
 		ctx := context.Background()
-		response, err := b.ListBooks(ctx, 1)
+		response, err := b.ListBooks(ctx, bookstore.ListBooksParameters{
+			Shelf: 1,
+		})
 		if err != nil {
 			t.Log("list books failed")
 			t.Fail()
@@ -214,7 +240,10 @@ func TestBookstore(t *testing.T) {
 	// delete a book
 	{
 		ctx := context.Background()
-		err := b.DeleteBook(ctx, 1, 2)
+		err := b.DeleteBook(ctx, bookstore.DeleteBookParameters{
+			Shelf: 1,
+			Book:  1,
+		})
 		if err != nil {
 			t.Log("delete book failed")
 			t.Fail()
@@ -223,7 +252,9 @@ func TestBookstore(t *testing.T) {
 	// list the books on a shelf and verify that is only 1
 	{
 		ctx := context.Background()
-		response, err := b.ListBooks(ctx, 1)
+		response, err := b.ListBooks(ctx, bookstore.ListBooksParameters{
+			Shelf: 1,
+		})
 		if err != nil {
 			t.Log("list books failed")
 			t.Fail()
