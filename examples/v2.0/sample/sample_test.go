@@ -35,7 +35,9 @@ func TestSample(t *testing.T) {
 	{
 		ctx := context.Background()
 		message := "hello world"
-		response, err := s.GetSample(ctx, message)
+		response, err := s.GetSample(ctx, sample.GetSampleParameters{
+			Id: message,
+		})
 		if err != nil {
 			t.Log("get sample failed")
 			t.Fail()
