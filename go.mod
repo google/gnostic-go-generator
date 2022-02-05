@@ -1,5 +1,7 @@
 module github.com/googleapis/gnostic-go-generator
 
+replace github.com/googleapis/gnostic-go-generator => github.com/ramarahmanda/gnostic-go-generator v0.2.1-0.20220205094112-ce5bea1ba7a3
+
 require (
 	github.com/docopt/docopt-go v0.0.0-20180111231733-ee0de3bc6815
 	github.com/golang/protobuf v1.3.4
