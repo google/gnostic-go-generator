@@ -146,13 +146,14 @@ func (renderer *Renderer) RenderServer() ([]byte, error) {
 		f.WriteLine(``)
 	}
 	f.WriteLine(`// Initialize the API service.`)
-	f.WriteLine(`func Initialize(p Provider) {`)
+	f.WriteLine(`func Initialize(p Provider) *mux.Router {`)
 	f.WriteLine(`  provider = p`)
 	f.WriteLine(`  var router = mux.NewRouter()`)
 	for _, method := range renderer.Model.Methods {
 		f.WriteLine(`router.HandleFunc("` + method.Path + `", ` + method.HandlerName + `).Methods("` + method.Method + `")`)
 	}
 	f.WriteLine(`  http.Handle("/", router)`)
+	f.WriteLine(`  return router`)
 	f.WriteLine(`}`)
 	f.WriteLine(``)
 	f.WriteLine(`// Provide the API service over HTTP.`)
